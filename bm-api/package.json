@@ -43,6 +43,7 @@
     "@swc/core": "^1.4.16",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.12.7",
+    "@types/ws": "^8.5.10",
     "eslint": "^8.57.0",
     "hot-hook": "^0.2.1",
     "pino-pretty": "^11.0.0",
@@ -57,13 +58,16 @@
     "@adonisjs/ignitor": "^2.0.8",
     "@adonisjs/lucid": "^20.5.1",
     "@adonisjs/session": "^7.4.0",
+    "@adonisjs/websocket": "^1.0.12",
     "@vinejs/vine": "^2.0.0",
     "argon2": "^0.40.1",
     "concurrently": "^8.2.2",
     "luxon": "^3.4.4",
     "mysql2": "^3.9.7",
     "reflect-metadata": "^0.2.2",
-    "websocket-ts": "^2.1.5"
+    "socket.io": "^4.7.5",
+    "websocket-ts": "^2.1.5",
+    "ws": "^8.16.0"
   },
   "hotHook": {
     "boundaries": [

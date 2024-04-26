@@ -11,6 +11,9 @@ export default class UserBonus extends BaseModel {
   @column()
   declare bonusId: number
 
+  @column()
+  declare gridId: number
+
   @column.dateTime({ autoCreate: true })
   declare usedAt: DateTime
 }

@@ -14,7 +14,6 @@ export default class extends BaseSchema {
       table.string('color', 7).notNullable()
 
       table.timestamp('created_at')
-      table.timestamp('updated_at')
     })
   }
 

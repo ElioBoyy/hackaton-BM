@@ -57,17 +57,17 @@ export default class UsersController {
         // Payload validator
         const user_payload = await updateUserValidator.validate(user)
         if (user_payload instanceof Error) {
-            return response.badRequest(user_payload.message)
+            return response.notModified(user_payload.message)
         }
 
         // Check if user name or email already exists
         const existingUserName = await User.findBy('username', user.username)
         const existingEmail = await User.findBy('email', user.email)
         if (existingUserName) {
-            return response.badRequest('User name already taken.')
+            return response.notModified('User name already taken.')
         }
         if (existingEmail) {
-            return response.badRequest('Email already taken.')
+            return response.notModified('Email already taken.')
         }
 
         user.save()
@@ -80,7 +80,7 @@ export default class UsersController {
             return response.notFound()
         }
         await user.delete()
-        return response.accepted("User deleted.")
+        return response.ok("User deleted.")
     }
 
     // Utils
