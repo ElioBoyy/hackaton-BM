@@ -25,19 +25,18 @@ export default function User() {
     
 
     const registerUser = async (username : string, email : string, password : string) => {
-        try {
-            const response = await axios.post('/api/user', {
-                username: username,
-                email: email,
-                password: password
-            });
-    
-            // Assuming you want to do something with the response, like logging it
-            console.log('User registered successfully:', response.data);
-        } catch (error) {
-            // Log the error message or the entire error object for debugging
-            console.error('Failed to register user:', error.message);
+        const response = await axiosQuery('/api/users', 'POST', { username: username, email: email, password: password });
+        if (response) {
+            console.log(response.data);
+        } else {
+            console.error('No response received');
         }
+    };
+
+    const handleRegisterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    
+        registerUser(username, email, password);
     };
 
     return (
@@ -74,7 +73,7 @@ export default function User() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button className='w-[120px]' onClick={registerUser}>Register</Button>
+                                    <Button className='w-[120px]' onClick={handleRegisterClick}>Register</Button>
                                 </CardFooter>
                             </Card>
                         </TabsContent>
