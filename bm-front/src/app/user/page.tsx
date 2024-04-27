@@ -1,37 +1,37 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { axiosQuery } from '@/lib/utils';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { axiosQuery } from '@/lib/utils'
 
 export default function User() {
-    const [isUserConnected, setUserConnected] = useState(false)
-    const [userAction, setUserAction] = useState('login')
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
 
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    
+    const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken') as string)
 
     const registerUser = async (username : string, email : string, password : string) => {
-        const response = await axiosQuery('/api/users/register', 'POST', { username: username, email: email, password: password });
+        const response = await axiosQuery('/api/user/register', 'POST', { username: username, email: email, password: password })
         if (response) {
-            console.log(response.data);
+            localStorage.setItem('jwtToken', response.data.token)
+            setJwtToken(localStorage.getItem('jwtToken') as string)
         } else {
-            console.error('No response received');
+            console.error('No response received')
         }
     };
 
-    const loginUser = async (username : string, password : string) => {
-        const response = await axiosQuery('/api/users/login', 'POST', { username: username, password: password });
+    const loginUser = async (email : string, password : string) => {
+        const response = await axiosQuery('/api/user/login', 'POST', { email: email, password: password })
         if (response) {
-            console.log(response.data);
+            localStorage.setItem('jwtToken', response.data.token)
+            setJwtToken(localStorage.getItem('jwtToken') as string)
         } else {
-            console.error('No response received');
+            console.error('No response received')
         }
     };
 
@@ -42,14 +42,21 @@ export default function User() {
 
     const handleLoginClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        loginUser(username, password);
+        loginUser(email, password);
     };
+
+    const handleLogoutClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        localStorage.removeItem('jwtToken')
+        setJwtToken('')
+    }
 
     return (
         <>
-            {isUserConnected ? (
+            { jwtToken ? (
                 <div>
                     <h1>Connected</h1>
+                    <Button onClick={handleLogoutClick}>Logout</Button>
                 </div>
             ) : (
                 <>
@@ -91,8 +98,8 @@ export default function User() {
                                 </CardHeader>
                                 <CardContent className='space-y-2'>
                                     <div className='space-y-1'>
-                                        <Label htmlFor='username'>Username</Label>
-                                        <Input id='username' placeholder='Cool_username_75' onChange={(e : any) => setUsername(e.target.value)} />
+                                        <Label htmlFor='email'>Email</Label>
+                                        <Input id='email' placeholder='m.s@gmail.com' onChange={(e : any) => setEmail(e.target.value)} />
                                     </div>
                                     <div className='space-y-1'>
                                         <Label htmlFor='password'>Password</Label>
