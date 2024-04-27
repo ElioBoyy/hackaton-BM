@@ -8,13 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { axiosQuery } from '@/lib/utils';
 
-interface Response {
-    status: number;
-    data: any;
-}
-
-// Rest of the code...
-
 export default function User() {
     const [isUserConnected, setUserConnected] = useState(false)
     const [userAction, setUserAction] = useState('login')
@@ -25,7 +18,16 @@ export default function User() {
     
 
     const registerUser = async (username : string, email : string, password : string) => {
-        const response = await axiosQuery('/api/users', 'POST', { username: username, email: email, password: password });
+        const response = await axiosQuery('/api/users/register', 'POST', { username: username, email: email, password: password });
+        if (response) {
+            console.log(response.data);
+        } else {
+            console.error('No response received');
+        }
+    };
+
+    const loginUser = async (username : string, password : string) => {
+        const response = await axiosQuery('/api/users/login', 'POST', { username: username, password: password });
         if (response) {
             console.log(response.data);
         } else {
@@ -35,8 +37,12 @@ export default function User() {
 
     const handleRegisterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-    
         registerUser(username, email, password);
+    };
+
+    const handleLoginClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        loginUser(username, password);
     };
 
     return (
@@ -94,7 +100,7 @@ export default function User() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button className='w-[120px]'>Login</Button>
+                                    <Button className='w-[120px]' onClick={handleLoginClick}>Login</Button>
                                 </CardFooter>
                             </Card>
                         </TabsContent>
