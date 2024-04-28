@@ -7,8 +7,13 @@ import { axiosQuery } from '@/lib/utils'
 import { Divider } from '@nextui-org/divider'
 import React, { useEffect, useState } from 'react'
 
+interface Grid {
+    title: string
+    url: string
+}
+
 export default function GameDashboard() {
-    const [grids, setGrids] = useState([]);
+    const [grids, setGrids] = useState<Grid[]>([])
 
     const getGrids = async () => {
         const response = await axiosQuery('/api/grids', 'GET', null)
