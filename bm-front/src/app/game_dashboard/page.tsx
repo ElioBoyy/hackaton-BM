@@ -28,6 +28,7 @@ export default function GameDashboard() {
             console.error('Error while fetching')
         }
     };
+    getGrids()
 
     const handleCreateLobby = () => {
         window.location.href = "/game_dashboard/create_lobby"
@@ -35,11 +36,7 @@ export default function GameDashboard() {
     const handleUser = () => {
         window.location.href = "/user"
     }
-
-    window.onload = () => {
-        getGrids()
-    }
-
+    
     return (
         <>
             {!localStorage.getItem('jwtToken') ? (

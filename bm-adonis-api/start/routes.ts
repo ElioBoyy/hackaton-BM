@@ -28,6 +28,7 @@ router.group(() => {
     router.get('/grids', GridsController.index)
     router.get('/grids/:id', GridsController.show)
     router.get('/grids/user/:id', GridsController.showGridOwner)
+    router.get('/grids/url/:url', GridsController.showGridByUrl)
     router.post('/grids', GridsController.store)
     router.put('/grids/:id/title', GridsController.updateTitle)
     router.put('/grids/:id/status', GridsController.updateStatus)

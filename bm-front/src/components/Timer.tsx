@@ -34,12 +34,11 @@ export default function Timer({ created_at, grid_duration }: TimerProps ) {
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setTimeLeft(calculateTimeLeft())
-        }, 1000)
-
-        return () => clearTimeout(timer)
-    })
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [created_at, grid_duration]);
 
     return (
         <span className="text-gray-500 dark:text-gray-400">

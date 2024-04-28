@@ -30,6 +30,14 @@ export default class GridsController {
         return response.ok(username)
     }
 
+    public static async showGridByUrl({ response, params }: HttpContext) {
+        const grid = await Grid.findBy('url', params.url)
+        if (!grid) {
+            return response.notFound()
+        }
+        return response.ok(grid)
+    }
+
     public static async store({ request, response }: HttpContext) {
         const grid = new Grid()
         grid.title = request.input('title')
