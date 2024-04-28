@@ -23,6 +23,7 @@ export default class GridsController {
     public static async store({ request, response }: HttpContext) {
         const grid = new Grid()
         grid.title = request.input('title')
+        grid.gridDuration = request.input('grid_duration')
 
         // Payload validator
         const grid_payload = await createGridValidator.validate(grid)

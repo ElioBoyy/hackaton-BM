@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -9,11 +9,19 @@ import { Button } from '@/components/ui/button'
 import { axiosQuery } from '@/lib/utils'
 
 export default function User() {
+
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken') as string)
+    const [jwtToken, setJwtToken] = useState('')
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+          const token = localStorage.getItem('jwtToken');
+          setJwtToken(token ? token : '');
+        }
+     }, []);
 
     const registerUser = async (username : string, email : string, password : string) => {
         const response = await axiosQuery('/api/user/register', 'POST', { username: username, email: email, password: password })
@@ -53,14 +61,14 @@ export default function User() {
 
     return (
         <>
-            { jwtToken ? (
+            { localStorage.getItem('jwtToken') || jwtToken ? (
                 <div>
                     <h1>Connected</h1>
                     <Button onClick={handleLogoutClick}>Logout</Button>
                 </div>
             ) : (
                 <>
-                    <Tabs defaultValue='register' className='w-[400px]' style={{position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%)'}}>
+                    <Tabs defaultValue='register' className='w-[400px] absolute top-[20%] left-[50%]' style={{transform: 'translate(-50%)'}}>
                         <TabsList className='grid w-full grid-cols-2'>
                             <TabsTrigger value='register' className='text-center'>Register</TabsTrigger>
                             <TabsTrigger value='login' className='text-center'>Login</TabsTrigger>
@@ -86,7 +94,7 @@ export default function User() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button className='w-[120px]' onClick={handleRegisterClick}>Register</Button>
+                                    <Button color="primary" className='w-[120px]' onClick={handleRegisterClick}>Register</Button>
                                 </CardFooter>
                             </Card>
                         </TabsContent>
@@ -107,7 +115,7 @@ export default function User() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button className='w-[120px]' onClick={handleLoginClick}>Login</Button>
+                                    <Button color="primary" className='w-[120px]' onClick={handleLoginClick}>Login</Button>
                                 </CardFooter>
                             </Card>
                         </TabsContent>

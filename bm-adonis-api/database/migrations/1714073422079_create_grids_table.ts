@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.increments('id').notNullable().primary()
       table.string('url', 254).notNullable().unique()
       table.string('title', 254).notNullable()
+      table.integer('grid_duration').notNullable()
       table.integer('is_active').notNullable()
 
       table.timestamp('created_at')

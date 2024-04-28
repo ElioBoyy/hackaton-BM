@@ -25,6 +25,9 @@ export default class Grid extends BaseModel {
   declare title: string
 
   @column()
+  declare gridDuration : number
+
+  @column()
   declare isActive: number
 
   @column.dateTime({ autoCreate: true })
