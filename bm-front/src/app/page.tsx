@@ -1,12 +1,14 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Label } from "@radix-ui/react-label";
 
 export default function Home() {
+  const token = localStorage.getItem('jwtToken');
   const handleClick = () => {
-    if (localStorage.getItem("token")) {
-      console.log("Redirect to the game page");
+    if (token) {
+      window.location.href = "/game_dashboard";
     } else {
       window.location.href = "/user";
     }
@@ -15,7 +17,7 @@ export default function Home() {
   return (
     <>
       <section className="absolute">
-        <CardTitle>HelloWorld</CardTitle>
+        <Label>Play the game</Label>
         <Card>
           <Button onClick={handleClick} className="w-[160px] h-[80px] text-5xl">Play</Button>
         </Card>

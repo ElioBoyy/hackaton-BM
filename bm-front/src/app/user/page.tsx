@@ -8,6 +8,15 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { axiosQuery } from '@/lib/utils'
 
+interface JWTToken {
+    abilities: string[]
+    expiresAt: string
+    lastUsedAt: string | null
+    name: string | null
+    token: string
+    type: string
+}
+
 export default function User() {
 
     const [username, setUsername] = useState('')
@@ -36,7 +45,8 @@ export default function User() {
     const loginUser = async (email : string, password : string) => {
         const response = await axiosQuery('/api/user/login', 'POST', { email: email, password: password })
         if (response) {
-            localStorage.setItem('jwtToken', response.data.token)
+            localStorage.setItem('jwtToken', response.data.token.token)
+            console.log(response.data.token.token as string)
             setJwtToken(localStorage.getItem('jwtToken') as string)
         } else {
             console.error('No response received')
@@ -61,7 +71,7 @@ export default function User() {
 
     return (
         <>
-            { localStorage.getItem('jwtToken') || jwtToken ? (
+            {localStorage.getItem('jwtToken') || jwtToken ? (
                 <div>
                     <h1>Connected</h1>
                     <Button onClick={handleLogoutClick}>Logout</Button>

@@ -1,7 +1,9 @@
 'use client'
 
+import GameCreatorLabel from '@/components/GameCreatorLabel'
+import Timer from '@/components/Timer'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { axiosQuery } from '@/lib/utils'
 import { Divider } from '@nextui-org/divider'
@@ -10,13 +12,16 @@ import React, { useEffect, useState } from 'react'
 interface Grid {
     title: string
     url: string
+    createdAt: string
+    gridDuration: number
+    userId: number
 }
 
 export default function GameDashboard() {
     const [grids, setGrids] = useState<Grid[]>([])
 
     const getGrids = async () => {
-        const response = await axiosQuery('/api/grids', 'GET', null)
+        const response = await axiosQuery('/api/grids', 'GET', null, localStorage.getItem('jwtToken'))
         if (response?.data) {
             setGrids(response?.data)
         } else {
@@ -27,14 +32,13 @@ export default function GameDashboard() {
     const handleCreateLobby = () => {
         window.location.href = "/game_dashboard/create_lobby"
     }
-
     const handleUser = () => {
         window.location.href = "/user"
     }
 
-    useEffect(() => {
-        getGrids();
-    }, []);
+    window.onload = () => {
+        getGrids()
+    }
 
     return (
         <>
@@ -45,44 +49,51 @@ export default function GameDashboard() {
                 </div>
             ) : (
                 <div className="flex flex-col min-h-screen">
-                    <header className="bg-color-background text-color-primary py-4 px-6 flex items-center justify-between">
-                        <h1 className="text-2xl font-bold">Game Lobbies</h1>
-                        <div className="flex items-center gap-4">
-                            <div className="relative">
-                                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                <Input
-                                className="bg-secondary rounded-md pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                                placeholder="Search lobbies..."
-                                type="text"
-                                />
+                    <header className="bg-color-background text-color-primary">
+                        <div className='flex items-center justify-between py-4 px-6'>
+                            <h1 className="text-2xl font-bold">Game Lobbies</h1>
+                            <div className="flex items-center gap-4">
+                                <div className="relative">
+                                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <Input
+                                    className="bg-secondary rounded-md pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                                    placeholder="Search lobbies..."
+                                    type="text"
+                                    />
+                                </div>
+                                <Button size="sm" className='primary-foreground' onClick={handleCreateLobby} >
+                                    Create Lobby
+                                </Button>
+                                <Divider orientation='vertical'/>
+                                <Button size="sm" variant="secondary" onClick={handleUser} >
+                                    Profile
+                                </Button>
                             </div>
-                            <Button size="sm" className='primary-foreground' onClick={handleCreateLobby} >
-                                Create Lobby
-                            </Button>
-                            <Divider orientation='vertical'/>
-                            <Button size="sm" variant="secondary" onClick={handleUser} >
-                                Profile
-                            </Button>
                         </div>
+                        <Divider />
                     </header>
-                    <Divider />
+                    
                     <main className="flex-1 bg-color-background dark:bg-gray-900 p-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 max-w-[60vw] mx-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 lx:grid-cols-4  gap-6 md:max-w-[60vw] lg:max-w-[50vw] mx-auto">
                             {grids.map((grid, index) => (
-                                <Card key={index}>
+                                <Card key={index} className='bg-secondary'>
                                     <div className="relative h-32 overflow-hidden rounded-t-md">
-                                        <img
+                                        {/* <img
                                             alt="Lobby Thumbnail"
                                             className="w-full h-full object-cover aspect-square"
                                             height={400}
                                             src="/placeholder.svg"
                                             width={400}
-                                        />
+                                        /> */}
                                     </div>
-                                    <div className="p-4 bg-secondary dark:bg-gray-800 rounded-b-md">
-                                        <h3 className="text-lg font-medium mb-2 flex">{grid.title}</h3>
+                                    <div className="p-4 dark:bg-gray-800 rounded-b-md">
+                                        <CardTitle className="text-lg font-medium mb-2 flex">{grid.title}</CardTitle>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-gray-500 dark:text-gray-400">4 players</span>
+                                            <div className="flex flex-col">
+                                                <GameCreatorLabel user_id={grid.userId} />
+                                                <span className="text-gray-500 dark:text-gray-400">0 players</span>
+                                                <Timer created_at={grid.createdAt} grid_duration={grid.gridDuration} />
+                                            </div>
                                             <Button size="sm" variant="outline" onClick={(e : any) => window.location.href = '/game/' + grid.url}>
                                                 Join
                                             </Button>

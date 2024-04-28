@@ -1,33 +1,59 @@
 'use client'
 
+import Grid from '@/components/Grid'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { axiosQuery } from '@/lib/utils'
 import { Divider } from '@nextui-org/divider'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
+interface User {
+    id: number
+    username: string
+    email: string
+}
 
 export default function CreateLobby() {
+    const [ me, setMe ] = useState<User>({ id: 0, username: "", email: "" })
     const [ lobbyName, setLobbyName ] = useState('')
     const [ lobbyDuration , setLobbyDuration ] = useState(3)
 
-    const postGrid = async (lobbyName : string, lobbyDuration : number) => {
-        const response = await axiosQuery('/api/grids', 'POST', { title: lobbyName, grid_duration: lobbyDuration })
+    const postGrid = async (lobbyName : string, lobbyDuration : number, user_id : number) => {
+        const response = await axiosQuery('/api/grids', 'POST', { title: lobbyName, grid_duration: lobbyDuration, user_id: user_id }, localStorage.getItem('jwtToken'))
         if (response) {
-            console.log(response)
+            return true
         } else {
-            console.error('Error while posting')
+            return false
         }
-    };
+    }
 
-    const handleCreateLobby = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const getMe = async () => {
+        const response = await axiosQuery('/api/me', 'GET', null, localStorage.getItem('jwtToken'))
+        if (response) {
+            setMe(response.data)
+        } else {
+            console.error('Error while getting me')
+        }
+    }
+
+    const handleCreateLobby = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault()
-        postGrid(lobbyName, lobbyDuration)
+        const isPosted = postGrid(lobbyName, lobbyDuration, me.id)
+        if (await isPosted) {
+            window.location.href = '/game_dashboard'
+        } else {
+            console.error('Failed to post grid')
+        }
     };
 
     const handleUser = () => {
         window.location.href = '/user'
+    }
+
+    window.onload = () => {
+        getMe()
     }
 
     return (

@@ -27,6 +27,7 @@ router.group(() => {
     // Grid routes
     router.get('/grids', GridsController.index)
     router.get('/grids/:id', GridsController.show)
+    router.get('/grids/user/:id', GridsController.showGridOwner)
     router.post('/grids', GridsController.store)
     router.put('/grids/:id/title', GridsController.updateTitle)
     router.put('/grids/:id/status', GridsController.updateStatus)
@@ -65,7 +66,7 @@ router.group(() => {
       router.post('/logout', AuthController.logout).use(middleware.auth())
     }).prefix('user')
     
-    router.get('me', async ({ auth, response }) => {
+    router.get('/me', async ({ auth, response }) => {
       try {
         const user = auth.getUserOrFail()
         return response.ok(user)

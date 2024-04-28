@@ -5,6 +5,7 @@ import {
     updateTitleGridValidator,
     updateStatusGridValidator
   } from '#validators/grid'
+import User from '#models/user'
 
 export default class GridsController {
     public static async index({ response }: HttpContext) {
@@ -20,10 +21,20 @@ export default class GridsController {
         return response.ok(grid)
     }
 
+    public static async showGridOwner({ response, params }: HttpContext) {
+        const user = await User.findOrFail(params.id)
+        if (!user) {
+            return response.notFound()
+        }
+        const username = user.$attributes.username
+        return response.ok(username)
+    }
+
     public static async store({ request, response }: HttpContext) {
         const grid = new Grid()
         grid.title = request.input('title')
         grid.gridDuration = request.input('grid_duration')
+        grid.userId = request.input('user_id')
 
         // Payload validator
         const grid_payload = await createGridValidator.validate(grid)

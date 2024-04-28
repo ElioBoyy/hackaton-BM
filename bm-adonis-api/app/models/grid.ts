@@ -19,6 +19,9 @@ export default class Grid extends BaseModel {
   declare id: number
 
   @column()
+  declare userId: number
+
+  @column()
   declare url: string
 
   @column()
