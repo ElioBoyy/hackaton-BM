@@ -18,8 +18,12 @@ export default class AuthController {
     const payload = await request.validateUsing(registerValidator)
 
     const user = await User.create(payload)
+    const token = await User.accessTokens.create(user)
 
-    return response.created(user)
+    return response.created({
+      token: token,
+      ...user.serialize(),
+    })
   }
   public static async logout({ auth, response }: HttpContext) {
     const user = auth.getUserOrFail()

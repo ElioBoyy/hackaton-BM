@@ -1,11 +1,35 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws'
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 3334 })
 
-wss.on('connection', function connection(ws) {
-  ws.on('message', function message(data) {
-    console.log('received: %s', data);
+let clients = new Set()
+
+function broadcast(data) {
+  clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data)
+      }
+  })
+}
+
+// Handle new connections
+wss.on('connection', (ws) => {
+  console.log('Client connected')
+  clients.add(ws)
+
+  // Handle incoming messages
+  ws.on('message', (message) => {
+      console.log(`Received: ${message}`)
+      const binaryData = Buffer.from(message, 'hex');
+      const decoder = new TextDecoder('utf-8');
+      const text = decoder.decode(binaryData);
+      broadcast(text) // Broadcast the message to all clients
   });
 
-  ws.send('something');
-});
+  // Handle disconnections
+  ws.on('close', () => {
+      console.log('Client disconnected')
+      clients.delete(ws)
+  })
+})
+

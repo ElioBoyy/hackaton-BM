@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface TimerProps {
     created_at: string
@@ -12,7 +12,7 @@ interface TimeLeft {
 }
 
 export default function Timer({ created_at, grid_duration }: TimerProps ) {
-    const calculateTimeLeft = () => {
+    const calculateTimeLeft = useCallback(() => {
         const now = new Date()
         const createdAt = new Date(created_at)
         const duration = grid_duration * 60 * 60 * 1000
@@ -25,20 +25,20 @@ export default function Timer({ created_at, grid_duration }: TimerProps ) {
                 hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
                 minutes: Math.floor((difference / 1000 / 60) % 60),
                 seconds: Math.floor((difference / 1000) % 60),
-            }
+            };
         }
 
-        return timeLeft
-    }
+        return timeLeft;
+    }, [created_at, grid_duration])
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [created_at, grid_duration]);
+            setTimeLeft(calculateTimeLeft())
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [calculateTimeLeft])
 
     return (
         <span className="text-gray-500 dark:text-gray-400">
@@ -47,5 +47,5 @@ export default function Timer({ created_at, grid_duration }: TimerProps ) {
             {timeLeft.seconds ? `${timeLeft.seconds}s remaining` : (timeLeft.hours || timeLeft.minutes) ? '0s remaining' : ''}
             {!timeLeft.hours && !timeLeft.minutes && !timeLeft.seconds ? 'Time\'s up!' : ''} 
         </span>
-    )
+    );
 }

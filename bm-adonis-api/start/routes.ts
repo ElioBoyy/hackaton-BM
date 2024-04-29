@@ -43,8 +43,10 @@ router.group(() => {
     // Pixel routes
     router.get('/pixels', PixelsController.index)
     router.get('/pixels/:id', PixelsController.show)
+    router.get('/pixels/grid/:gridId', PixelsController.pixelByGridShow)
     router.post('/pixels', PixelsController.store)
     router.delete('/pixels/:id', PixelsController.destroy)
+    router.delete('/pixels/grid/:x/:y/:gridId', PixelsController.destroyByGridXY)
 
     // user bonuses routes
     router.get('/userbonuses', UserBonusesController.index)

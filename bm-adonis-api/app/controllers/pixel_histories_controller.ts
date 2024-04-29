@@ -22,7 +22,9 @@ export default class PixelHistoriesController {
 
     public static async store({ response, request }: HttpContext) {
         const pixelHistory = new PixelHistory()
-        pixelHistory.pixelId = request.input('pixel_id')
+        pixelHistory.gridId = request.input('grid_id')
+        pixelHistory.x = request.input('x')
+        pixelHistory.y = request.input('y')
         pixelHistory.color = request.input('color')
 
         const pixelHistoryPayload = await createPixelHistoryValidator.validate(pixelHistory)
@@ -32,7 +34,6 @@ export default class PixelHistoriesController {
 
         await pixelHistory.save()
         return response.created(pixelHistory)
-
     }
 
     public static async destroy({ response, params }: HttpContext) {

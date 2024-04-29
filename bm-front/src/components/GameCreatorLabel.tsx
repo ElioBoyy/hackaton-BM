@@ -20,7 +20,7 @@ export default function GameCreatorLabel( owner : GameCreatorLabelProps) {
 
     useEffect(() => {
         getGridOwner(owner.user_id)
-    }, [])
+    }, [owner.user_id])
 
     return (
         <Label>Owner: {username}</Label>

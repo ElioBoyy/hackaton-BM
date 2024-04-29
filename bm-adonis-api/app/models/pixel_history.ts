@@ -6,7 +6,13 @@ export default class PixelHistory extends BaseModel {
   declare id: number
 
   @column()
-  declare pixelId: number
+  declare gridId: number
+
+  @column()
+  declare x: number
+
+  @column()
+  declare y: number
 
   @column()
   declare color: string

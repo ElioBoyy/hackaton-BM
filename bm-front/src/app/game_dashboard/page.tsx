@@ -20,15 +20,18 @@ interface Grid {
 export default function GameDashboard() {
     const [grids, setGrids] = useState<Grid[]>([])
 
-    const getGrids = async () => {
-        const response = await axiosQuery('/api/grids', 'GET', null, localStorage.getItem('jwtToken'))
-        if (response?.data) {
-            setGrids(response?.data)
-        } else {
-            console.error('Error while fetching')
+    useEffect(() => {
+        const getGrids = async () => {
+            const response = await axiosQuery('/api/grids', 'GET', null, localStorage.getItem('jwtToken'))
+            if (response?.data) {
+                setGrids(response?.data)
+            } else {
+                console.error('Error while fetching')
+            }
         }
-    };
-    getGrids()
+
+        getGrids()
+    }, [])
 
     const handleCreateLobby = () => {
         window.location.href = "/game_dashboard/create_lobby"

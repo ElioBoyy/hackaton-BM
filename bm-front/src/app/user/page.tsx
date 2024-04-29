@@ -33,9 +33,9 @@ export default function User() {
      }, []);
 
     const registerUser = async (username : string, email : string, password : string) => {
-        const response = await axiosQuery('/api/user/register', 'POST', { username: username, email: email, password: password })
+        const response = await axiosQuery('/api/user/register', 'POST', { username: username, email: email, password: password }, null)
         if (response) {
-            localStorage.setItem('jwtToken', response.data.token)
+            localStorage.setItem('jwtToken', response.data.token.token)
             setJwtToken(localStorage.getItem('jwtToken') as string)
         } else {
             console.error('No response received')
@@ -43,10 +43,9 @@ export default function User() {
     };
 
     const loginUser = async (email : string, password : string) => {
-        const response = await axiosQuery('/api/user/login', 'POST', { email: email, password: password })
+        const response = await axiosQuery('/api/user/login', 'POST', { email: email, password: password }, null)
         if (response) {
             localStorage.setItem('jwtToken', response.data.token.token)
-            console.log(response.data.token.token as string)
             setJwtToken(localStorage.getItem('jwtToken') as string)
         } else {
             console.error('No response received')
@@ -78,7 +77,7 @@ export default function User() {
                 </div>
             ) : (
                 <>
-                    <Tabs defaultValue='register' className='w-[400px] absolute top-[20%] left-[50%]' style={{transform: 'translate(-50%)'}}>
+                    <Tabs defaultValue='register' className='w-[400px] absolute origin-top top-[25%] left-[50%] transform -translate-x-[50%]'>
                         <TabsList className='grid w-full grid-cols-2'>
                             <TabsTrigger value='register' className='text-center'>Register</TabsTrigger>
                             <TabsTrigger value='login' className='text-center'>Login</TabsTrigger>
