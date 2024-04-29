@@ -9,29 +9,34 @@ wss.on('connection', (ws, req) => {
   console.log('Client connected')
   const parsedUrl = url.parse(req.url, true)
   const userName = parsedUrl.query.user_name
+  const urlQ = parsedUrl.query.url
   console.log(`User name from query parameter: ${userName}`)
 
   ws.on('message', (message) => {
-    if (ws.url) {
-      console.log(`Received message from ${ws.url}: ${message}`)
-      broadcastToSamePage(message, ws.url)
+    if (urlQ) {
+      console.log(`Received message from ${urlQ}: ${message}`)
+      broadcastToSamePage(message, urlQ, ws)
     } else {
-      console.log(`Client connected to ${ws.url}`)
+      console.log(`Client connected to ${urlQ}`)
     
-      if (!connectionsByUrl.has(ws.url)) {
-        connectionsByUrl.set(ws.url, [])
+      if (!connectionsByUrl.has(urlQ)) {
+        connectionsByUrl.set(urlQ, [])
       }
-      connectionsByUrl.get(ws.url).push(ws)
+      connectionsByUrl.get(urlQ).push(ws)
     }
   })
 
   ws.on('close', () => {
     console.log('Client disconnected')
-    if (ws.url) {
-      const connections = connectionsByUrl.get(ws.url)
-      const index = connections.indexOf(ws)
-      if (index !== -1) {
-        connections.splice(index, 1)
+    if (urlQ) {
+      try {
+        const connections = connectionsByUrl.get(urlQ)
+        const index = connections.indexOf(ws)
+        if (index !== -1) {
+          connections.splice(index, 1)
+        }
+      } catch (e) {
+        console.log('Error removing client connection')
       }
     }
   })

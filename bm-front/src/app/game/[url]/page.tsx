@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import React, { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { motion, useAnimation } from "framer-motion";
-import { Label } from '@/components/ui/label';
-import { HexColorPicker } from 'react-colorful';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Divider } from '@nextui-org/divider';
-import { axiosQuery } from '@/lib/utils';
+import React, { useEffect, useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { motion, useAnimation } from "framer-motion"
+import { Label } from '@/components/ui/label'
+import { HexColorPicker } from 'react-colorful'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Divider } from '@nextui-org/divider'
+import { axiosQuery } from '@/lib/utils'
 
 interface Grid {
     id: number
@@ -99,23 +99,23 @@ export default function GameUrl({ params }: {
         const getPixels = async () => {
             try {
                 if (gridObject) {
-                    const response = await axiosQuery(`/api/pixels/grid/${gridObject.id}`, 'GET', null, localStorage.getItem('jwtToken'));
+                    const response = await axiosQuery(`/api/pixels/grid/${gridObject.id}`, 'GET', null, localStorage.getItem('jwtToken'))
                     if (response?.data) {
-                        console.log(response.data);
-                        setPixels(response.data);
-                        setLoading(false);
+                        console.log(response.data)
+                        setPixels(response.data)
+                        setLoading(false)
                     } else {
-                        console.error('Error while getting pixels');
-                        setLoading(true);
+                        console.error('Error while getting pixels')
+                        setLoading(true)
                     }
                 }
             } catch (error) {
-                console.error(error);
+                console.error(error)
             }
-        };
+        }
     
-        getPixels();
-    }, [gridObject]);
+        getPixels()
+    }, [gridObject])
 
 
 
@@ -215,9 +215,21 @@ export default function GameUrl({ params }: {
     // Websocket connection
     useEffect(() => {
         const userName = user.username.replace(/[^a-zA-Z0-9_-]/g, '_')
-        const ws = new WebSocket(`ws://localhost:3334?user_name=${userName}`)
+        const ws = new WebSocket(`ws://localhost:3334?url=${params.url}&user_name=${userName}`)
         ws.onopen = () => {
             console.log('Connected to WS')
+            ws.send(JSON.stringify(
+                {
+                    x: 2,
+                    y: 9,
+                    color: '#112233'
+                }
+            ))
+        }
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data);
         }
     }, [user])
 
