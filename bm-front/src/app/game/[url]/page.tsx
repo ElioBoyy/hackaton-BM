@@ -47,6 +47,7 @@ export default function GameUrl({ params }: {
     const [gridObject, setGridObject] = useState<Grid | undefined>()
     const [user, setUser] = useState<User>({id: 0, username: '', email: ''})
     const [isGridExist, setIsGridExist] = useState<boolean>(false)
+    const [ws, setWS] = useState<WebSocket>()
     const [pixels, setPixels] = useState<Pixel[]>([])
     const [pixelColors, setPixelColors] = useState<string[][]>(() => {
         const colors: string[][] = [];
@@ -123,6 +124,16 @@ export default function GameUrl({ params }: {
         try {            
             const response = await axiosQuery(`/api/pixels`, 'POST', { gridId: gridId, userId: userId, x: i, y: j, color: color }, localStorage.getItem('jwtToken'))
             if (response?.data) {
+                // Historize pixel
+                console.log(gridId, i, j, color)
+                const responseHisto = await axiosQuery(`/api/pixelhistories`, 'POST', { grid_id: gridId, x: i, y: j, color: color }, localStorage.getItem('jwtToken'))
+                if (responseHisto?.data) {
+                    console.log(responseHisto.data)
+                } else {
+                    console.error('Error while historizing pixel')
+                }
+
+                //return pixel data
                 return response.data
             } else {
                 console.error('Error while posting pixel')
@@ -135,22 +146,17 @@ export default function GameUrl({ params }: {
         }
     }
 
-    const deletePixelAndHisto = async (gridId: number, x: number, y: number, color: string) => {
+    const deletePixel = async (gridId: number, x: number, y: number, color: string) => {
         try {
+            const isPixelToDelete = await axiosQuery(`/api/pixels/grid/${x}/${y}/${gridId}`, 'GET', null, localStorage.getItem('jwtToken'))
+            if (!isPixelToDelete?.data) {
+                return
+            }
             const response = await axiosQuery(`/api/pixels/grid/${x}/${y}/${gridId}`, 'DELETE', null, localStorage.getItem('jwtToken'))
             if (response?.data) {
-                console.log(response.data)
+                // console.log(response.data)
             } else {
                 console.error('Error while deleting pixel')
-            }
-
-            // Historize pixel
-            console.log(gridId, x, y, color)
-            const responseHisto = await axiosQuery(`/api/pixelhistories`, 'POST', { grid_id: gridId, x: x, y: y, color: color }, localStorage.getItem('jwtToken'))
-            if (responseHisto?.data) {
-                console.log(responseHisto.data)
-            } else {
-                console.error('Error while historizing pixel')
             }
         } catch (error) {
             console.error(error)
@@ -171,20 +177,22 @@ export default function GameUrl({ params }: {
             const newZoomLevel = zoomLevel * 0.9
             setZoomLevel(newZoomLevel)
         }
+
+        ws?.send('ButtonClicked')
     }
 
     const handlePixelColorChange = (i: number, j: number, newColor: string) => {
         const deleteExistingPixel = (i: number, j: number) => {
-            const existingPixelIndex = pixels.findIndex((pixel) => pixel.x === i && pixel.y === j);
+            const existingPixelIndex = pixels.findIndex((pixel) => pixel.x === i && pixel.y === j)
             if (existingPixelIndex !== -1) {
-                const updatedPixels = [...pixels];
-                updatedPixels.splice(existingPixelIndex, 1);
-                setPixels(updatedPixels);
-                deletePixelAndHisto(gridObject?.id ?? -1, i, j, pixelColors[i][j]);
+                const updatedPixels = [...pixels]
+                updatedPixels[existingPixelIndex].color = newColor
+                setPixels(updatedPixels)
             }
-        };
+            deletePixel(gridObject?.id ?? -1, i, j, pixelColors[i][j])
+        }
 
-        deleteExistingPixel(i, j);
+        deleteExistingPixel(i, j)
 
         const newPixelColors = [...pixelColors]
         newPixelColors[i][j] = newColor
@@ -200,40 +208,24 @@ export default function GameUrl({ params }: {
                 y: response.y,
                 color: response.color
             }]);
-            console.log(response)
         }).catch((error) => {
-            console.error(error);
-        });
+            console.error(error)
+        })
+
+        ws?.send(JSON.stringify(
+            {
+                newPixel: {
+                    x: i,
+                    y: j,
+                    color: newColor
+                }
+            }
+        ));
     }
 
     const handleColorSelection = (newColor: string) => {
         setSelectedColor(newColor)
     }
-
-
-
-    // Websocket connection
-    useEffect(() => {
-        const userName = user.username.replace(/[^a-zA-Z0-9_-]/g, '_')
-        const ws = new WebSocket(`ws://localhost:3334?url=${params.url}&user_name=${userName}`)
-        ws.onopen = () => {
-            console.log('Connected to WS')
-            ws.send(JSON.stringify(
-                {
-                    x: 2,
-                    y: 9,
-                    color: '#112233'
-                }
-            ))
-        }
-        
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log(data);
-        }
-    }, [user])
-
-
 
     const grid = [];
     for (let i = 0; i < gridSize; i++) {
@@ -271,6 +263,44 @@ export default function GameUrl({ params }: {
     }
 
 
+
+    // Websocket connection
+    useEffect(() => {
+        const userName = user.username.replace(/[^a-zA-Z0-9_-]/g, '_')
+        const ws = new WebSocket(`ws://localhost:3334?url=${params.url}&user_name=${userName}`)
+        setWS(ws)
+        
+        ws.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data)
+
+                if (data.newPixel) {
+                    const { x, y, color } = data.newPixel
+                    // Update the pixel color in the state
+                    setPixels(pixels => pixels.map(pixel => {
+                        if (pixel.x === x && pixel.y === y) {
+                            // If the pixel exists, update its color
+                            return { ...pixel, color }
+                        }
+                        return pixel // Return the pixel unchanged if it doesn't match
+                    }));
+        
+                    // Also update the pixelColors state to reflect the change
+                    setPixelColors(pixelColors => {
+                        const updatedPixelColors = [...pixelColors]
+                        updatedPixelColors[x][y] = color
+                        return updatedPixelColors
+                    })
+                }
+                if (data.players) {
+                    // Update the players list
+                }
+            } catch (error) {
+                // Raw message
+                console.log(error)
+            }
+        }
+    }, [user, pixels])
 
     useEffect(() => {
         const handleWheel = (event: any) => {

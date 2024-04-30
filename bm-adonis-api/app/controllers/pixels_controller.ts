@@ -39,6 +39,14 @@ export default class PixelsController {
         return response.ok(uniquePixelsArray);
     }
 
+    public static async pixelByGridXYShow({ response, params }: HttpContext) {
+        const pixel = await Pixel.query().where('grid_id', params.gridId).where('x', params.x).where('y', params.y).first()
+        if (!pixel) {
+            return response.notFound()
+        }
+        return response.ok(pixel)
+    }
+
     public static async store({ request, response }: HttpContext) {
         const pixel = new Pixel()
         pixel.gridId = request.input('gridId')
