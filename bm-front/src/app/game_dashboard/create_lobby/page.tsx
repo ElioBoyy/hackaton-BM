@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { axiosQuery } from '@/lib/utils'
 import { Divider } from '@nextui-org/divider'
+import { get } from 'http'
 import React, { useEffect, useState } from 'react'
 
 interface User {
@@ -16,9 +17,19 @@ interface User {
 }
 
 export default function CreateLobby() {
-    const [ me, setMe ] = useState<User>({ id: 0, username: "", email: "" })
-    const [ lobbyName, setLobbyName ] = useState('')
-    const [ lobbyDuration , setLobbyDuration ] = useState(3)
+    const [me, setMe] = useState<User>({ id: 0, username: "", email: "" })
+    const [token, setToken] = useState<string | null>(null)
+    const [lobbyName, setLobbyName] = useState('')
+    const [lobbyDuration , setLobbyDuration] = useState(3)
+
+
+    useEffect(() => {
+        const token = localStorage.getItem('jwtToken')
+        setToken(token)
+
+        getMe()
+    } , [])
+
 
     const postGrid = async (lobbyName : string, lobbyDuration : number, user_id : number) => {
         const response = await axiosQuery('/api/grids', 'POST', { title: lobbyName, grid_duration: lobbyDuration, user_id: user_id }, localStorage.getItem('jwtToken'))
@@ -52,13 +63,9 @@ export default function CreateLobby() {
         window.location.href = '/user'
     }
 
-    window.onload = () => {
-        getMe()
-    }
-
     return (
         <>
-        {!localStorage.getItem('jwtToken') ? (
+        {!token ? (
                 <div className="flex flex-col min-h-screen items-center justify-center">
                     <h1 className="text-4xl font-bold">Please log in to view this page</h1>
                     <Button className="mt-4" onClick={handleUser}>Log In</Button>

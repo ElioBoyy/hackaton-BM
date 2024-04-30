@@ -8,6 +8,7 @@ import { HexColorPicker } from 'react-colorful'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Divider } from '@nextui-org/divider'
 import { axiosQuery } from '@/lib/utils'
+import Header from '@/components/headers/header'
 
 interface Grid {
     id: number
@@ -40,12 +41,16 @@ export default function GameUrl({ params }: {
 }) {
     const gridSize = 40
     const squareSize = 10
+    const [token, setToken] = useState<string | null>(null)
+    const [innerWidth, setInnerWidth] = useState(0)
+    const [innerHeight, setInnerHeight] = useState(0)
     const [loading, setLoading] = useState(true)
     const controls = useAnimation()
     const [zoomLevel, setZoomLevel] = useState(1)
     const [selectedColor, setSelectedColor] = useState('#aabbcc')
-    const [gridObject, setGridObject] = useState<Grid | undefined>()
-    const [user, setUser] = useState<User>({id: 0, username: '', email: ''})
+    const [gridObject, setGridObject] = useState<Grid>({ id: 0, title: '', url: '', createdAt: '', gridDuration: 0, userId: 0})
+    const [user, setUser] = useState<User>({ id: 0, username: '', email: '' })
+    const [users, setUsers] = useState<String[]>([])
     const [isGridExist, setIsGridExist] = useState<boolean>(false)
     const [ws, setWS] = useState<WebSocket>()
     const [pixels, setPixels] = useState<Pixel[]>([])
@@ -63,6 +68,25 @@ export default function GameUrl({ params }: {
 
 
     useEffect(() => {
+        const storedToken = localStorage.getItem('jwtToken');
+        setToken(storedToken);
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setInnerWidth(window.innerWidth);
+            setInnerHeight(window.innerHeight);
+        }
+        window.addEventListener('resize', handleResize)
+
+        handleResize()
+
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [])
+
+    useEffect(() => {
         const getGrid = async () => {
             try {
                 const response = await axiosQuery(`/api/grids/url/${params.url}`, 'GET', null, localStorage.getItem('jwtToken'))
@@ -75,7 +99,7 @@ export default function GameUrl({ params }: {
             } catch (error) {
                 console.error(error)
                 setIsGridExist(false)
-            } 
+            }
         }
 
         const getMe = async () => {
@@ -114,14 +138,14 @@ export default function GameUrl({ params }: {
                 console.error(error)
             }
         }
-    
+
         getPixels()
     }, [gridObject])
 
 
 
-    const postPixel = async (gridId : number, userId: number, i: number, j: number, color: string) : Promise<Pixel> => {
-        try {            
+    const postPixel = async (gridId: number, userId: number, i: number, j: number, color: string): Promise<Pixel> => {
+        try {
             const response = await axiosQuery(`/api/pixels`, 'POST', { gridId: gridId, userId: userId, x: i, y: j, color: color }, localStorage.getItem('jwtToken'))
             if (response?.data) {
                 // Historize pixel
@@ -177,8 +201,6 @@ export default function GameUrl({ params }: {
             const newZoomLevel = zoomLevel * 0.9
             setZoomLevel(newZoomLevel)
         }
-
-        ws?.send('ButtonClicked')
     }
 
     const handlePixelColorChange = (i: number, j: number, newColor: string) => {
@@ -266,11 +288,13 @@ export default function GameUrl({ params }: {
 
     // Websocket connection
     useEffect(() => {
+        setUsers([user.username])
+
         const userName = user.username.replace(/[^a-zA-Z0-9_-]/g, '_')
         const ws = new WebSocket(`ws://localhost:3334?url=${params.url}&user_name=${userName}`)
         setWS(ws)
-        
-        ws.onmessage = function(event) {
+
+        ws.onmessage = function (event) {
             try {
                 const data = JSON.parse(event.data)
 
@@ -284,7 +308,7 @@ export default function GameUrl({ params }: {
                         }
                         return pixel // Return the pixel unchanged if it doesn't match
                     }));
-        
+
                     // Also update the pixelColors state to reflect the change
                     setPixelColors(pixelColors => {
                         const updatedPixelColors = [...pixelColors]
@@ -292,15 +316,23 @@ export default function GameUrl({ params }: {
                         return updatedPixelColors
                     })
                 }
-                if (data.players) {
-                    // Update the players list
+                if (data.type && data.type === 'playerList') {
+                    if (data.players) {
+                        const players = data.players
+                        players.splice(players.indexOf(userName), 1)
+                        setUsers(data.players)
+                    }
+                }
+
+                if (data.PlayerDisconnected) {
+                    setUsers(users => users.filter((user) => user !== data.PlayerDisconnected))
                 }
             } catch (error) {
                 // Raw message
-                console.log(error)
+                console.log(event.data)
             }
         }
-    }, [user, pixels])
+    }, [user, pixels, params.url])
 
     useEffect(() => {
         const handleWheel = (event: any) => {
@@ -315,7 +347,7 @@ export default function GameUrl({ params }: {
 
         window.addEventListener('wheel', handleWheel)
         return () => window.removeEventListener('wheel', handleWheel)
-    }, [zoomLevel])
+    }, [innerHeight, innerWidth, zoomLevel])
 
     useEffect(() => {
         controls.start({ scale: zoomLevel })
@@ -324,92 +356,101 @@ export default function GameUrl({ params }: {
 
     return (
         <>
-        {loading ? (
-            isGridExist ? (
-                <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center'>
-                    <Label className='text-4xl font-bold mb-5'>Loading...</Label>
-                    <Label>Please wait for grid to be set</Label>
-                </div>
-            ) : (
-                <div className="flex flex-col min-h-screen items-center justify-center">
-                    <h1 className="text-4xl font-bold">{`The page you want to access doesn't exist.`}</h1>
-                    <Button className="mt-4" onClick={(e:any) => {window.location.href = '/game_dashboard'}}>Go to lobbies dashboard</Button>
-                </div>
-            )
-        ) : (
-            <div className='relative h-[100vh] w-[100vw] overflow-hidden'>
-                <Label
-                    className='absolute top-[22%] flex text-center text-lg transform -translate-x-1/2'
-                    style={{left: `${innerWidth / 2 - 175}px`}}
-                    dangerouslySetInnerHTML={{__html: `You can zoom using buttons below <br/> or your mouse's wheel!`}}>
-                </Label>
-                <div className='absolute top-[55%] transform -translate-x-1/2 -translate-y-1/2' style={{left: `${innerWidth / 2 - 175}px` }}>
-                    <motion.div
-                        className='grid-container relative'
-                        style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            width: `${gridSize * squareSize}px`,
-                            height: `${gridSize * squareSize}px`
-                        }}
-                        animate={controls}
-                    >
-                        {grid}
-                    </motion.div>
-                </div>
-                <div>
-                    <Button
-                        style={{
-                            position: 'absolute',
-                            bottom: '0%',
-                            marginBottom: '20px',
-                            left: '20px',
-                            zIndex: 10,
-                        }}
-                        onClick={handleZoom}
-                    >
-                        Zoom In
-                    </Button>
-                    <Button
-                        style={{
-                            position: 'absolute',
-                            bottom: '0%',
-                            left: '120px',
-                            marginBottom: '20px',
-                            zIndex: 10,
-                        }}
-                        onClick={handleDeZoom}
-                    >
-                        <p>Zoom Out</p>
-                    </Button>
-                </div>
-                <section className='absolute z-[100] right-0 w-[350px]'>
-                    <Card className='h-[100vh] flex flex-col' style={{borderRadius: '0px'}}>
-                        <CardHeader>
-                            <CardTitle>{gridObject?.title}</CardTitle>
-                        </CardHeader>
-                        <Divider className='mb-5'/>
-                        <CardContent className='flex-grow'>
-                            <CardHeader>
-                                <Label className='text-lg'>Users connected:</Label>
-                                <Divider />
-                            </CardHeader>
-                            <CardContent className='flex flex-col max-h-[49vh] gap-20 overflow-y-auto'>
-                                {/* Users list */}
-                            </CardContent>
-                            <Divider />
-                        </CardContent>
-                        <Divider className='mb-5'/>
-                    </Card>
-                    <Card className='absolute bottom-0 flex flex-col w-full h-[300px]' style={{borderRadius: '0px'}}>
-                        <CardFooter className='relative flex flex-col m-0 p-0 top-1/2 transform -translate-y-1/2'>
-                            <Label>Selected color:</Label>
-                            {selectedColor}
-                            <HexColorPicker color={selectedColor} onChange={handleColorSelection} />
-                        </CardFooter>
-                    </Card>
-                </section>
+        {!token ? (
+            <div className="flex flex-col min-h-screen items-center justify-center">
+                <h1 className="text-4xl font-bold">Please log in to access this page</h1>
+                <Button className="mt-4" onClick={(e:any) => {window.location.href = '/user'}}>Log In</Button>
             </div>
+        ) : loading ? (
+                isGridExist ? (
+                    <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center'>
+                        <Label className='text-4xl font-bold mb-5'>Loading...</Label>
+                        <Label>Please wait for grid to be set</Label>
+                    </div>
+                ) : (
+                    <div className="flex flex-col min-h-screen items-center justify-center">
+                        <h1 className="text-4xl font-bold">{`The page you want to access doesn't exist.`}</h1>
+                        <Button className="mt-4" onClick={(e: any) => { window.location.href = '/game_dashboard' }}>Go to lobbies dashboard</Button>
+                    </div>
+                )
+            ) : (
+                <>
+                    <Header id={gridObject?.id} createdAt={gridObject?.createdAt} gridDuration={gridObject?.gridDuration} />
+                    <div className='relative z-0 h-[100vh] w-[100vw] overflow-hidden'>
+                        <Label
+                            className='absolute top-[22%] flex text-center text-lg transform -translate-x-1/2'
+                            style={{ left: `${innerWidth / 2 - 175}px` }}
+                            dangerouslySetInnerHTML={{ __html: `You can zoom using buttons below <br/> or your mouse's wheel!` }}>
+                        </Label>
+                        <div className='absolute top-[55%] transform -translate-x-1/2 -translate-y-1/2' style={{ left: `${innerWidth / 2 - 175}px` }}>
+                            <motion.div
+                                className='grid-container relative'
+                                style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    width: `${gridSize * squareSize}px`,
+                                    height: `${gridSize * squareSize}px`
+                                }}
+                                animate={controls}
+                            >
+                                {grid}
+                            </motion.div>
+                        </div>
+                        <div>
+                            <Button
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '0%',
+                                    marginBottom: '20px',
+                                    left: '20px',
+                                    zIndex: 10,
+                                }}
+                                onClick={handleZoom}
+                            >
+                                Zoom In
+                            </Button>
+                            <Button
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '0%',
+                                    left: '120px',
+                                    marginBottom: '20px',
+                                    zIndex: 10,
+                                }}
+                                onClick={handleDeZoom}
+                            >
+                                <p>Zoom Out</p>
+                            </Button>
+                        </div>
+                        <section className='absolute h-[100vh] z-[100] right-0 w-[350px]'>
+                            <Card className='relative top-[0px] flex flex-col' style={{ borderRadius: '0px', height: `${innerHeight - 300}px` }}>
+                                <CardHeader>
+                                    <CardTitle>{gridObject?.title}</CardTitle>
+                                </CardHeader>
+                                <Divider className='mb-5' />
+                                <CardContent className='flex-grow'>
+                                    <CardHeader>
+                                        <Label className='text-lg'>Users connected:</Label>
+                                        <Divider />
+                                    </CardHeader>
+                                    <CardContent className='flex flex-col gap-10 overflow-y-auto ml-3' style={{ maxHeight: `${innerHeight - 500}px` }}>
+                                        <Label>◉ {user.username}</Label>
+                                        {users.map((user, index) => (
+                                            <Label key={index}>◉ {user}</Label>
+                                        ))}
+                                    </CardContent>
+                                </CardContent>
+                            </Card>
+                            <Card className='absolute bottom-0 flex flex-col w-full h-[300px]' style={{ borderRadius: '0px' }}>
+                                <CardFooter className='relative flex flex-col m-0 p-0 top-1/2 transform -translate-y-1/2'>
+                                    <Label>Selected color:</Label>
+                                    {selectedColor}
+                                    <HexColorPicker color={selectedColor} onChange={handleColorSelection} />
+                                </CardFooter>
+                            </Card>
+                        </section>
+                    </div>
+                </>
             )}
         </>
     )

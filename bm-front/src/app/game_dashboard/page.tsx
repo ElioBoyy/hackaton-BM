@@ -10,6 +10,7 @@ import { Divider } from '@nextui-org/divider'
 import React, { useEffect, useState } from 'react'
 
 interface Grid {
+    id: number
     title: string
     url: string
     createdAt: string
@@ -18,7 +19,16 @@ interface Grid {
 }
 
 export default function GameDashboard() {
+    const [token, setToken] = useState<string | null>(null)
     const [grids, setGrids] = useState<Grid[]>([])
+    const [ws, setWS] = useState<WebSocket | null>(null)
+
+
+
+    useEffect(() => {
+        const token = localStorage.getItem('jwtToken')
+        setToken(token)
+    } , [])
 
     useEffect(() => {
         const getGrids = async () => {
@@ -33,19 +43,20 @@ export default function GameDashboard() {
         getGrids()
     }, [])
 
-    const handleCreateLobby = () => {
-        window.location.href = "/game_dashboard/create_lobby"
+
+
+    const onTimeUp = () => {
+        console.log('Time\'s up!')
     }
-    const handleUser = () => {
-        window.location.href = "/user"
-    }
+
+
     
     return (
         <>
-            {!localStorage.getItem('jwtToken') ? (
+            {!token ? (
                 <div className="flex flex-col min-h-screen items-center justify-center">
-                    <h1 className="text-4xl font-bold">Please log in to view this page</h1>
-                    <Button className="mt-4" onClick={handleUser}>Log In</Button>
+                    <h1 className="text-4xl font-bold">Please log in to access this page</h1>
+                    <Button className="mt-4" onClick={(e:any) => {window.location.href = '/user'}}>Log In</Button>
                 </div>
             ) : (
                 <div className="flex flex-col min-h-screen">
@@ -61,11 +72,11 @@ export default function GameDashboard() {
                                     type="text"
                                     />
                                 </div>
-                                <Button size="sm" className='primary-foreground' onClick={handleCreateLobby} >
+                                <Button size="sm" className='primary-foreground' onClick={(e:any) => {window.location.href = '/game_dashboard/create_lobby'}} >
                                     Create Lobby
                                 </Button>
                                 <Divider orientation='vertical'/>
-                                <Button size="sm" variant="secondary" onClick={handleUser} >
+                                <Button size="sm" variant="secondary" onClick={(e:any) => {window.location.href = '/user'}} >
                                     Profile
                                 </Button>
                             </div>
@@ -73,34 +84,28 @@ export default function GameDashboard() {
                         <Divider />
                     </header>
                     
-                    <main className="flex-1 bg-color-background dark:bg-gray-900 p-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 lx:grid-cols-4  gap-6 md:max-w-[60vw] lg:max-w-[50vw] mx-auto">
-                            {grids.map((grid, index) => (
-                                <Card key={index} className='bg-secondary'>
-                                    <div className="relative h-32 overflow-hidden rounded-t-md">
-                                        {/* <img
-                                            alt="Lobby Thumbnail"
-                                            className="w-full h-full object-cover aspect-square"
-                                            height={400}
-                                            src="/placeholder.svg"
-                                            width={400}
-                                        /> */}
-                                    </div>
-                                    <div className="p-4 dark:bg-gray-800 rounded-b-md">
-                                        <CardTitle className="text-lg font-medium mb-2 flex">{grid.title}</CardTitle>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex flex-col">
-                                                <GameCreatorLabel user_id={grid.userId} />
-                                                <span className="text-gray-500 dark:text-gray-400">0 players</span>
-                                                <Timer created_at={grid.createdAt} grid_duration={grid.gridDuration} />
+                    <main className="flex-1 bg-color-background p-6">
+                        <div className='gap-6 md:max-w-[70vw] lg:max-w-[60vw] mx-auto'>
+                            <div className='flex flex-wrap justify-center gap-5'>
+                                {grids.map((grid, index) => (
+                                    <Card key={index} className='bg-secondary w-[300px] min-w-[300px] max-w-[300px]'>
+                                        <div className="my-3 p-4 rounded-b-md">
+                                            <CardTitle className="text-lg font-medium mb-2 flex">{grid.title}</CardTitle>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex flex-col">
+                                                    <GameCreatorLabel user_id={grid.userId} />
+                                                    <span className="text-gray-500">0 players</span>
+                                                    <Timer created_at={grid.createdAt} grid_duration={grid.gridDuration} grid_id={grid.id} classProps='' />
+                                                </div>
+                                                <Button size="sm" variant="outline" onClick={(e : any) => window.location.href = `/game/${grid.url}`}>
+                                                    Join
+                                                </Button>
                                             </div>
-                                            <Button size="sm" variant="outline" onClick={(e : any) => window.location.href = '/game/' + grid.url}>
-                                                Join
-                                            </Button>
                                         </div>
-                                    </div>
-                                </Card>
-                            ))}
+                                    </Card>
+                                ))}
+                                <div className='w-[300px] min-w-[300px] max-w-[300px] h-[166px]'></div>
+                            </div>
                         </div>
                     </main>
                 </div>

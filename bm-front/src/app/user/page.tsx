@@ -18,17 +18,21 @@ interface JWTToken {
 }
 
 export default function User() {
+    const [token, setToken] = useState<string | null>(null)
 
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const [jwtToken, setJwtToken] = useState('')
+    useEffect(() => {
+        const token = localStorage.getItem('jwtToken')
+        setToken(token)
+    } , [])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('jwtToken');
-          setJwtToken(token ? token : '');
+          setToken(token ? token : '');
         }
      }, []);
 
@@ -36,7 +40,7 @@ export default function User() {
         const response = await axiosQuery('/api/user/register', 'POST', { username: username, email: email, password: password }, null)
         if (response) {
             localStorage.setItem('jwtToken', response.data.token.token)
-            setJwtToken(localStorage.getItem('jwtToken') as string)
+            setToken(localStorage.getItem('jwtToken') as string)
         } else {
             console.error('No response received')
         }
@@ -46,7 +50,7 @@ export default function User() {
         const response = await axiosQuery('/api/user/login', 'POST', { email: email, password: password }, null)
         if (response) {
             localStorage.setItem('jwtToken', response.data.token.token)
-            setJwtToken(localStorage.getItem('jwtToken') as string)
+            setToken(localStorage.getItem('jwtToken') as string)
         } else {
             console.error('No response received')
         }
@@ -65,12 +69,12 @@ export default function User() {
     const handleLogoutClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         localStorage.removeItem('jwtToken')
-        setJwtToken('')
+        setToken(null)
     }
 
     return (
         <>
-            {localStorage.getItem('jwtToken') || jwtToken ? (
+            {token ? (
                 <div>
                     <h1>Connected</h1>
                     <Button onClick={handleLogoutClick}>Logout</Button>

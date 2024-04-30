@@ -1,52 +1,68 @@
 import { WebSocketServer } from 'ws'
-import url from 'url'
+import url from 'node:url'
 
 const wss = new WebSocketServer({ port: 3334 })
 
-// Store connections by URL
+// Store connections by URL, with each connection associated with its userName
 const connectionsByUrl = new Map()
 
 wss.on('connection', (ws, req) => {
-    console.log('Client connected')
-    const parsedUrl = url.parse(req.url, true)
-    const userName = parsedUrl.query.user_name
-    const urlQ = parsedUrl.query.url
+  console.log('Client connected')
+  const parsedUrl = url.parse(req.url, true)
+  const userName = parsedUrl.query.user_name
+  const urlQ = parsedUrl.query.url
 
+  if (urlQ === 'game_dashboard') {
+    broadcastPlayerCountByGame()
+  } else {
     // Initialize the array for this URL if it doesn't exist
     if (!connectionsByUrl.has(urlQ)) {
-        connectionsByUrl.set(urlQ, [])
+      connectionsByUrl.set(urlQ, [])
     }
 
-    // Add the new connection to the list for this URL
+    // Add the new connection to the list for this URL, associating it with its userName
     const connections = connectionsByUrl.get(urlQ)
-    connections.push(ws)
+    if (!connections.some((conn) => conn.userName === userName)) {
+      connections.push({ ws, userName })
+    }
 
     // Broadcast a message to all clients connected to the same URL
-    broadcastMessage(urlQ, `New player connected: ${userName}`)
+    broadcastPlayerList(urlQ)
 
     ws.on('message', (message) => {
-        console.log(`Received message from ${userName} (${urlQ}): ${message}`)
-        broadcastMessage(urlQ, message)
+      console.log(`Received message from ${userName} (${urlQ}): ${message}`)
+      broadcastMessage(urlQ, message)
     })
 
     ws.on('close', () => {
-        console.log('Client disconnected')
-        // Remove the connection from the list
-        const connections = connectionsByUrl.get(urlQ);
-        const index = connections.indexOf(ws)
-        if (index !== -1) {
-            connections.splice(index, 1)
-        }
-        // Broadcast a message to all clients connected to the same URL
-        broadcastMessage(urlQ, `Player disconnected: ${userName}`)
-    });
-});
+      console.log('Client disconnected')
+      // Remove the connection from the list
+      const connectionsDisco = connectionsByUrl.get(urlQ)
+      const index = connectionsDisco.findIndex((conn) => conn.ws === ws)
+      if (index !== -1) {
+        connectionsDisco.splice(index, 1)
+      }
+      // Broadcast a message to all clients connected to the same URL
+      broadcastMessage(urlQ, `{ "PlayerDisconnected": "${userName}" }`)
+    })
+  }
+})
 
-function broadcastMessage(url, message) {
-    const connections = connectionsByUrl.get(url)
-    if (connections) {
-        connections.forEach(ws => {
-            ws.send(message.toString())
-        })
-    }
+function broadcastMessage(urlM, message) {
+  const connections = connectionsByUrl.get(urlM)
+  if (connections) {
+    connections.forEach((conn) => {
+      conn.ws.send(message.toString())
+    })
+  }
+}
+
+function broadcastPlayerList(urlPL) {
+  const connections = connectionsByUrl.get(urlPL)
+  if (connections) {
+    const players = connections.map((conn) => conn.userName).filter(Boolean)
+    connections.forEach((conn) => {
+      conn.ws.send(JSON.stringify({ type: 'playerList', players }))
+    })
+  }
 }

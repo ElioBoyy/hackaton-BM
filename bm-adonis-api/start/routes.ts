@@ -17,7 +17,8 @@ import BonusesController from '#controllers/bonuses_controller'
 import AuthController from '#controllers/auth_controller'
 import { middleware } from './kernel.js'
 
-router.group(() => {
+router
+  .group(() => {
     // User routes
     router.get('/users', UsersController.index)
     router.get('/users/:id', UsersController.show)
@@ -61,23 +62,24 @@ router.group(() => {
     router.post('/bonuses', BonusesController.store)
     router.delete('/bonuses/:id', BonusesController.destroy)
 
-
-
     // Auth routes
-    router.group(() => {
-      router.post('/register', AuthController.register)
-      router.post('/login', AuthController.login)
-      router.post('/logout', AuthController.logout).use(middleware.auth())
-    }).prefix('user')
-    
-    router.get('/me', async ({ auth, response }) => {
-      try {
-        const user = auth.getUserOrFail()
-        return response.ok(user)
-      } catch (error) {
-        return response.unauthorized({ error: 'User not found' })
-      }
-    })
-    .use(middleware.auth())
+    router
+      .group(() => {
+        router.post('/register', AuthController.register)
+        router.post('/login', AuthController.login)
+        router.post('/logout', AuthController.logout).use(middleware.auth())
+      })
+      .prefix('user')
 
-}).prefix('api')
+    router
+      .get('/me', async ({ auth, response }) => {
+        try {
+          const user = auth.getUserOrFail()
+          return response.ok(user)
+        } catch (error) {
+          return response.unauthorized({ error: 'User not found' })
+        }
+      })
+      .use(middleware.auth())
+  })
+  .prefix('api')

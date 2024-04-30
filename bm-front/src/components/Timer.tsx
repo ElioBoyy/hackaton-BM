@@ -1,8 +1,11 @@
+import { axiosQuery } from '@/lib/utils';
 import { useState, useEffect, useCallback } from 'react';
 
 interface TimerProps {
     created_at: string
     grid_duration: number
+    grid_id: number
+    classProps: string
 }
 
 interface TimeLeft {
@@ -11,7 +14,7 @@ interface TimeLeft {
     seconds: number
 }
 
-export default function Timer({ created_at, grid_duration }: TimerProps ) {
+export default function Timer({ created_at, grid_duration, grid_id, classProps }: TimerProps, ) {
     const calculateTimeLeft = useCallback(() => {
         const now = new Date()
         const createdAt = new Date(created_at)
@@ -33,6 +36,8 @@ export default function Timer({ created_at, grid_duration }: TimerProps ) {
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
 
+
+
     useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft())
@@ -40,8 +45,19 @@ export default function Timer({ created_at, grid_duration }: TimerProps ) {
         return () => clearInterval(timer)
     }, [calculateTimeLeft])
 
+    useEffect(() => {
+        if (timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0) {
+            const response = axiosQuery(`/api/grids/${grid_id}/status`, 'PUT', null, localStorage.getItem('jwtToken'))
+            if (!response) {
+                console.error('Error while updating grid status')
+            }
+        }
+    }, [calculateTimeLeft, grid_id, timeLeft.hours, timeLeft.minutes, timeLeft.seconds])
+
+
+
     return (
-        <span className="text-gray-500 dark:text-gray-400">
+        <span className={!classProps || classProps === '' ? "text-gray-500 dark:text-gray-400" : classProps}>
             {timeLeft.hours ? `${timeLeft.hours}h ` : ''}
             {timeLeft.minutes ? `${timeLeft.minutes}m ` : (timeLeft.hours) ? '0m ' : ''}
             {timeLeft.seconds ? `${timeLeft.seconds}s remaining` : (timeLeft.hours || timeLeft.minutes) ? '0s remaining' : ''}
