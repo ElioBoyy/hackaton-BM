@@ -242,10 +242,10 @@ export default function GameUrl({ params }: {
     }
 
     const handleZoom = async () => {
-        if (innerHeight > zoomLevel * gridSize * squareSize + innerHeight * 0.2 && innerWidth > zoomLevel * gridSize * squareSize + innerWidth * 0.4) {
-            const newZoomLevel = zoomLevel * 1.1
-            setZoomLevel(newZoomLevel)
-        }
+        // if (innerHeight > zoomLevel * gridSize * squareSize + innerHeight * 0.2 && innerWidth > zoomLevel * gridSize * squareSize + innerWidth * 0.4) {
+        //     const newZoomLevel = zoomLevel * 1.1
+        //     setZoomLevel(newZoomLevel)
+        // }
 
         for(let i = 0; i < gridSize; i++) {
             for(let j = 0; j < gridSize; j++) {
@@ -368,7 +368,7 @@ export default function GameUrl({ params }: {
         setUsers([user.username])
 
         const userName = user.username.replace(/[^a-zA-Z0-9_-]/g, '_')
-        const ws = new WebSocket(`http://34.155.216.217:80?url=${params.url}&user_name=${userName}`)
+        const ws = new WebSocket(`ws://localhost:3334?url=${params.url}&user_name=${userName}`)
         setWS(ws)
 
         ws.onmessage = function (event) {
