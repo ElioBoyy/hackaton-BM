@@ -17,7 +17,7 @@
 
 ## Installation
 
-Installer avec npm:
+Installer avec node(v20.12.2) npm(v10.5.0):
 
 Dand les deux fichiers du git, executer : 
 `npm i`
