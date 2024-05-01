@@ -368,7 +368,7 @@ export default function GameUrl({ params }: {
         setUsers([user.username])
 
         const userName = user.username.replace(/[^a-zA-Z0-9_-]/g, '_')
-        const ws = new WebSocket(`ws://localhost:3334?url=${params.url}&user_name=${userName}`)
+        const ws = new WebSocket(`ws://34.155.216.217:80/ws?url=${params.url}&user_name=${userName}`)
         setWS(ws)
 
         ws.onmessage = function (event) {

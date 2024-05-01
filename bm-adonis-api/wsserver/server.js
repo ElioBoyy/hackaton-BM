@@ -1,7 +1,7 @@
 import { WebSocketServer } from 'ws'
 import url from 'node:url'
 
-const wss = new WebSocketServer({ port: 3334 })
+const wss = new WebSocketServer({ port: 3334, host: 0.0.0.0 })
 
 // Store connections by URL, with each connection associated with its userName
 const connectionsByUrl = new Map()
