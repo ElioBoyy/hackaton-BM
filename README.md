@@ -125,7 +125,7 @@ Cette API permet de gérer mon r/Place.
 ### S'inscrire
 
 - **Méthode**: POST
-- **URL**: `/user/register`
+- **URL**: `/api/user/register`
 - **Description**: Crée un nouvel utilisateur et génère un token d'accès.
 - **Corps de la requête**:
   - `email`: L'email de l'utilisateur.
@@ -136,7 +136,7 @@ Cette API permet de gérer mon r/Place.
 ### Se connecter
 
 - **Méthode**: POST
-- **URL**: `/user/login`
+- **URL**: `/api/user/login`
 - **Description**: Authentifie un utilisateur et génère un token d'accès.
 - **Corps de la requête**:
   - `email`: L'email de l'utilisateur.
@@ -147,7 +147,7 @@ Cette API permet de gérer mon r/Place.
 ### Se déconnecter
 
 - **Méthode**: POST
-- **URL**: `/user/logout`
+- **URL**: `/api/user/logout`
 - **Description**: Déconnecte l'utilisateur actuellement connecté.
 - **Réponse**:
   - **Code de statut**: 200 (OK) avec le message 'Déconnecté' si la déconnexion est réussie, 401 (Unauthorized) avec un message d'erreur si l'utilisateur n'est pas connecté.
@@ -155,7 +155,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir les informations de l'utilisateur connecté
 
 - **Méthode**: GET
-- **URL**: `/user/me`
+- **URL**: `/api/user/me`
 - **Description**: Récupère les informations de l'utilisateur actuellement connecté.
 - **Réponse**:
   - **Code de statut**: 200 (OK) avec les informations de l'utilisateur si l'utilisateur est connecté, 401 (Unauthorized) avec un message d'erreur si l'utilisateur n'est pas connecté.
@@ -166,7 +166,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir tous les bonus
 
 - **Méthode**: GET
-- **URL**: `/userbonuses`
+- **URL**: `/api/userbonuses`
 - **Description**: Récupère la liste de tous les bonus.
 - **Réponse**:
   - **Code de statut**: 200 (OK)
@@ -175,7 +175,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir un bonus par ID
 
 - **Méthode**: GET
-- **URL**: `/userbonuses/:id`
+- **URL**: `/api/userbonuses/:id`
 - **Description**: Récupère les détails d'un bonus spécifique en fonction de son ID.
 - **Paramètres**:
   - `id`: L'ID du bonus.
@@ -186,7 +186,7 @@ Cette API permet de gérer mon r/Place.
 ### Créer un bonus
 
 - **Méthode**: POST
-- **URL**: `/userbonuses`
+- **URL**: `/api/userbonuses`
 - **Description**: Crée un nouveau bonus.
 - **Corps de la requête**:
   - `name`: Le nom du bonus.
@@ -196,7 +196,7 @@ Cette API permet de gérer mon r/Place.
 ### Supprimer un bonus
 
 - **Méthode**: DELETE
-- **URL**: `/userbonuses/:id`
+- **URL**: `/api/userbonuses/:id`
 - **Description**: Supprime un bonus spécifique.
 - **Paramètres**:
   - `id`: L'ID du bonus à supprimer.
@@ -209,7 +209,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir toutes les grilles
 
 - **Méthode**: GET
-- **URL**: `/grids`
+- **URL**: `/api/grids`
 - **Description**: Récupère la liste de toutes les grilles.
 - **Réponse**:
   - **Code de statut**: 200 (OK)
@@ -218,7 +218,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir une grille par ID
 
 - **Méthode**: GET
-- **URL**: `/grids/:id`
+- **URL**: `/api/grids/:id`
 - **Description**: Récupère les détails d'une grille spécifique en fonction de son ID.
 - **Paramètres**:
   - `id`: L'ID de la grille.
@@ -229,7 +229,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir le propriétaire d'une grille par ID
 
 - **Méthode**: GET
-- **URL**: `/grids/user/:id`
+- **URL**: `/api/grids/user/:id`
 - **Description**: Récupère le nom d'utilisateur du propriétaire d'une grille spécifique en fonction de son ID.
 - **Paramètres**:
   - `id`: L'ID de la grille.
@@ -239,7 +239,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir une grille par URL
 
 - **Méthode**: GET
-- **URL**: `/grids/url/:url`
+- **URL**: `/api/grids/url/:url`
 - **Description**: Récupère les détails d'une grille spécifique en fonction de son URL.
 - **Paramètres**:
   - `url`: L'URL de la grille.
@@ -250,7 +250,7 @@ Cette API permet de gérer mon r/Place.
 ### Créer une grille
 
 - **Méthode**: POST
-- **URL**: `/grids`
+- **URL**: `/api/grids`
 - **Description**: Crée une nouvelle grille.
 - **Corps de la requête**:
   - `title`: Le titre de la grille.
@@ -262,7 +262,7 @@ Cette API permet de gérer mon r/Place.
 ### Mettre à jour le titre d'une grille
 
 - **Méthode**: PUT
-- **URL**: `/grids/:id/title`
+- **URL**: `/api/grids/:id/title`
 - **Description**: Met à jour le titre d'une grille spécifique.
 - **Paramètres**:
   - `id`: L'ID de la grille à mettre à jour.
@@ -274,7 +274,7 @@ Cette API permet de gérer mon r/Place.
 ### Mettre à jour le statut d'une grille
 
 - **Méthode**: PUT
-- **URL**: `/grids/:id/status`
+- **URL**: `/api/grids/:id/status`
 - **Description**: Met à jour le statut d'une grille spécifique.
 - **Paramètres**:
   - `id`: L'ID de la grille à mettre à jour.
@@ -284,7 +284,7 @@ Cette API permet de gérer mon r/Place.
 ### Supprimer une grille
 
 - **Méthode**: DELETE
-- **URL**: `/grids/:id`
+- **URL**: `/api/grids/:id`
 - **Description**: Supprime une grille spécifique.
 - **Paramètres**:
   - `id`: L'ID de la grille à supprimer.
@@ -297,7 +297,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir tous les historiques de pixels
 
 - **Méthode**: GET
-- **URL**: `/pixelhistories`
+- **URL**: `/api/pixelhistories`
 - **Description**: Récupère la liste de tous les historiques de pixels.
 - **Réponse**:
   - **Code de statut**: 200 (OK)
@@ -306,7 +306,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir un historique de pixel par ID
 
 - **Méthode**: GET
-- **URL**: `/pixelhistories/:id`
+- **URL**: `/api/pixelhistories/:id`
 - **Description**: Récupère les détails d'un historique de pixel spécifique en fonction de son ID.
 - **Paramètres**:
   - `id`: L'ID de l'historique de pixel.
@@ -317,7 +317,7 @@ Cette API permet de gérer mon r/Place.
 ### Créer un historique de pixel
 
 - **Méthode**: POST
-- **URL**: `/pixelhistories`
+- **URL**: `/api/pixelhistories`
 - **Description**: Crée un nouvel historique de pixel.
 - **Corps de la requête**:
   - `grid_id`: L'ID de la grille associée à l'historique de pixel.
@@ -330,7 +330,7 @@ Cette API permet de gérer mon r/Place.
 ### Supprimer un historique de pixel
 
 - **Méthode**: DELETE
-- **URL**: `/pixelhistories/:id`
+- **URL**: `/api/pixelhistories/:id`
 - **Description**: Supprime un historique de pixel spécifique.
 - **Paramètres**:
   - `id`: L'ID de l'historique de pixel à supprimer.
@@ -343,7 +343,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir tous les pixels
 
 - **Méthode**: GET
-- **URL**: `/pixels`
+- **URL**: `/api/pixels`
 - **Description**: Récupère la liste de tous les pixels.
 - **Réponse**:
   - **Code de statut**: 200 (OK)
@@ -352,7 +352,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir un pixel par ID
 
 - **Méthode**: GET
-- **URL**: `/pixels/:id`
+- **URL**: `/api/pixels/:id`
 - **Description**: Récupère les détails d'un pixel spécifique en fonction de son ID.
 - **Paramètres**:
   - `id`: L'ID du pixel.
@@ -363,7 +363,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir tous les pixels d'une grille
 
 - **Méthode**: GET
-- **URL**: `/pixels/grid/:gridId`
+- **URL**: `/api/pixels/grid/:gridId`
 - **Description**: Récupère la liste de tous les pixels associés à une grille spécifique.
 - **Paramètres**:
   - `gridId`: L'ID de la grille.
@@ -373,7 +373,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir un pixel par coordonnées dans une grille
 
 - **Méthode**: GET
-- **URL**: `/pixels/grid/:x/:y/:gridId`
+- **URL**: `/api/pixels/grid/:x/:y/:gridId`
 - **Description**: Récupère les détails d'un pixel spécifique dans une grille en fonction de ses coordonnées x et y.
 - **Paramètres**:
   - `x`: La position x du pixel.
@@ -386,7 +386,7 @@ Cette API permet de gérer mon r/Place.
 ### Créer un pixel
 
 - **Méthode**: POST
-- **URL**: `/pixels`
+- **URL**: `/api/pixels`
 - **Description**: Crée un nouvel pixel.
 - **Corps de la requête**:
   - `gridId`: L'ID de la grille associée au pixel.
@@ -400,7 +400,7 @@ Cette API permet de gérer mon r/Place.
 ### Supprimer un pixel
 
 - **Méthode**: DELETE
-- **URL**: `/pixels/:id`
+- **URL**: `/api/pixels/:id`
 - **Description**: Supprime un pixel spécifique.
 - **Paramètres**:
   - `id`: L'ID du pixel à supprimer.
@@ -410,7 +410,7 @@ Cette API permet de gérer mon r/Place.
 ### Supprimer un pixel par coordonnées dans une grille
 
 - **Méthode**: DELETE
-- **URL**: `/pixels/grid/:x/:y/:gridId`
+- **URL**: `/api/pixels/grid/:x/:y/:gridId`
 - **Description**: Supprime un pixel spécifique dans une grille en fonction de ses coordonnées x et y.
 - **Paramètres**:
   - `x`: La position x du pixel.
@@ -425,7 +425,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir tous les bonus d'utilisateurs
 
 - **Méthode**: GET
-- **URL**: `/userbonuses`
+- **URL**: `/api/userbonuses`
 - **Description**: Récupère la liste de tous les bonus d'utilisateurs.
 - **Réponse**:
   - **Code de statut**: 200 (OK)
@@ -434,7 +434,7 @@ Cette API permet de gérer mon r/Place.
 ### Obtenir un bonus d'utilisateur par ID
 
 - **Méthode**: GET
-- **URL**: `/userbonuses/:id`
+- **URL**: `/api/userbonuses/:id`
 - **Description**: Récupère les détails d'un bonus d'utilisateur spécifique en fonction de son ID.
 - **Paramètres**:
   - `id`: L'ID du bonus d'utilisateur.
@@ -445,7 +445,7 @@ Cette API permet de gérer mon r/Place.
 ### Créer un bonus d'utilisateur
 
 - **Méthode**: POST
-- **URL**: `/userbonuses`
+- **URL**: `/api/userbonuses`
 - **Description**: Crée un nouveau bonus d'utilisateur.
 - **Corps de la requête**:
   - `userId`: L'ID de l'utilisateur associé au bonus.
@@ -457,7 +457,7 @@ Cette API permet de gérer mon r/Place.
 ### Supprimer un bonus d'utilisateur
 
 - **Méthode**: DELETE
-- **URL**: `/userbonuses/:id`
+- **URL**: `/api/userbonuses/:id`
 - **Description**: Supprime un bonus d'utilisateur spécifique.
 - **Paramètres**:
   - `id`: L'ID du bonus d'utilisateur à supprimer.
