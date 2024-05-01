@@ -1,13 +1,20 @@
+import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
 
 export default class Bonus extends BaseModel {
+  @beforeCreate()
+  static async createdAt(bonus: Bonus) {
+    if (!bonus.createdAt) {
+      bonus.createdAt = DateTime.now().toString()
+    }
+  }
+
   @column({ isPrimary: true })
   declare id: number
 
   @column()
   declare name: string
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+  @column()
+  declare createdAt: String
 }

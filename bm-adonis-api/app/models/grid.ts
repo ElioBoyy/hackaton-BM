@@ -3,15 +3,16 @@ import { BaseModel, beforeCreate, beforeSave, column } from '@adonisjs/lucid/orm
 
 export default class Grid extends BaseModel {
   @beforeSave()
-  public static async randomizedUrl(grid: Grid) {
+  static async randomizedUrl(grid: Grid) {
     if (!grid.url) {
-      grid.url = generateRandomUrl();
+      grid.url = generateRandomUrl()
     }
   }
+
   @beforeCreate()
-  public static async isActive(grid: Grid) {
+  static async isActive(grid: Grid) {
     if (!grid.isActive) {
-      grid.isActive = 1;
+      grid.isActive = 1
     }
   }
 
@@ -28,16 +29,16 @@ export default class Grid extends BaseModel {
   declare title: string
 
   @column()
-  declare gridDuration : number
+  declare gridDuration: number
 
   @column()
   declare isActive: number
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: false })
+  declare createdAt: DateTime
 }
 
 function generateRandomUrl() {
@@ -46,8 +47,8 @@ function generateRandomUrl() {
   let url = ''
 
   for (let i = 0; i < urlLength; i++) {
-      const randomIndex = Math.floor(Math.random() * urlSafeChars.length)
-      url += urlSafeChars[randomIndex]
+    const randomIndex = Math.floor(Math.random() * urlSafeChars.length)
+    url += urlSafeChars[randomIndex]
   }
 
   return url

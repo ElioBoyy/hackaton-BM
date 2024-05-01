@@ -22,6 +22,8 @@ router
     // User routes
     router.get('/users', UsersController.index)
     router.get('/users/:id', UsersController.show)
+    router.get('/users/username/:username', UsersController.isUsernameExists)
+    router.get('/users/email/:email', UsersController.isEmailExists)
     router.put('/users/:id', UsersController.update)
     router.delete('/users/:id', UsersController.destroy)
 

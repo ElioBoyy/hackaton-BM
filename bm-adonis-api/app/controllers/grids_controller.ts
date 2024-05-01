@@ -67,12 +67,11 @@ export default class GridsController {
     return response.ok(grid)
   }
 
-  static async updateStatus({ request, response, params }: HttpContext) {
+  static async updateStatus({ response, params }: HttpContext) {
     const grid = await Grid.findOrFail(params.id)
     if (!grid) {
       return response.notFound()
     }
-    grid.isActive = request.input('is_active')
 
     if (grid.isActive === 1) {
       grid.isActive = 0

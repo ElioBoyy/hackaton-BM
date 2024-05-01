@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { axiosQuery } from '@/lib/utils'
 import { Divider } from '@nextui-org/divider'
-import { get } from 'http'
 import React, { useEffect, useState } from 'react'
 
 interface User {
@@ -21,19 +20,22 @@ export default function CreateLobby() {
     const [token, setToken] = useState<string | null>(null)
     const [lobbyName, setLobbyName] = useState('')
     const [lobbyDuration , setLobbyDuration] = useState(3)
+    const [loading, setLoading] = useState(true)
 
 
     useEffect(() => {
         const token = localStorage.getItem('jwtToken')
         setToken(token)
-
+        setLoading(false)
         getMe()
     } , [])
 
 
     const postGrid = async (lobbyName : string, lobbyDuration : number, user_id : number) => {
+        console.log(lobbyName, lobbyDuration, user_id)
         const response = await axiosQuery('/api/grids', 'POST', { title: lobbyName, grid_duration: lobbyDuration, user_id: user_id }, localStorage.getItem('jwtToken'))
         if (response) {
+            console.log(response)
             return true
         } else {
             return false
@@ -65,7 +67,12 @@ export default function CreateLobby() {
 
     return (
         <>
-        {!token ? (
+        {loading ? (
+            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center'>
+                <Label className='text-4xl font-bold mb-5'>Loading...</Label>
+                <Label>Please wait for grid to be set</Label>
+            </div>
+        ) : !token ? (
                 <div className="flex flex-col min-h-screen items-center justify-center">
                     <h1 className="text-4xl font-bold">Please log in to view this page</h1>
                     <Button className="mt-4" onClick={handleUser}>Log In</Button>

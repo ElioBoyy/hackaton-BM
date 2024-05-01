@@ -1,7 +1,14 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
 
 export default class UserBonus extends BaseModel {
+  @beforeCreate()
+  static async createdAt(userBonus: UserBonus) {
+    if (!userBonus.usedAt) {
+      userBonus.usedAt = DateTime.now().toString()
+    }
+  }
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -14,6 +21,6 @@ export default class UserBonus extends BaseModel {
   @column()
   declare gridId: number
 
-  @column.dateTime({ autoCreate: true })
-  declare usedAt: DateTime
+  @column()
+  declare usedAt: String
 }

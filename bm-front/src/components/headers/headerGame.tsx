@@ -13,7 +13,7 @@ interface Grid {
     gridDuration: number
 }
 
-export default function Header({ id, createdAt, gridDuration }: Grid) {
+export default function HeaderGame({ id, createdAt, gridDuration }: Grid) {
     const [innerWidth, setInnerWidth] = useState(window.innerWidth)
 
     useEffect(() => {
@@ -23,7 +23,7 @@ export default function Header({ id, createdAt, gridDuration }: Grid) {
     }, [])
 
     return (
-        <header className='absolute w-full z-50' style={{width: `${innerWidth - 350}px`}}>
+        <header className='absolute w-full z-50  bg-background' style={{width: `${innerWidth - 350}px`}}>
             <div className='flex h-[73px] items-center justify-between py-4 px-6'>
                 <div className='flex items-center gap-5'>
                     <Button className='cursor-pointer' size="sm" variant="secondary" onClick={(e:any) => {window.location.href = '/game_dashboard'}} >

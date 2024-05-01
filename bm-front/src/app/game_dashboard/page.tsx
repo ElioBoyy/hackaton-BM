@@ -7,6 +7,7 @@ import { Card, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { axiosQuery } from '@/lib/utils'
 import { Divider } from '@nextui-org/divider'
+import { Label } from '@radix-ui/react-label'
 import React, { useEffect, useState } from 'react'
 
 interface Grid {
@@ -16,12 +17,14 @@ interface Grid {
     createdAt: string
     gridDuration: number
     userId: number
+    isActive: number
 }
 
 export default function GameDashboard() {
     const [token, setToken] = useState<string | null>(null)
     const [grids, setGrids] = useState<Grid[]>([])
     const [ws, setWS] = useState<WebSocket | null>(null)
+    const [loading, setLoading] = useState(true)
 
 
 
@@ -35,7 +38,10 @@ export default function GameDashboard() {
             const response = await axiosQuery('/api/grids', 'GET', null, localStorage.getItem('jwtToken'))
             if (response?.data) {
                 setGrids(response?.data)
+                console.log(response.data)
+                setLoading(false)
             } else {
+                setLoading(true)
                 console.error('Error while fetching')
             }
         }
@@ -44,16 +50,15 @@ export default function GameDashboard() {
     }, [])
 
 
-
-    const onTimeUp = () => {
-        console.log('Time\'s up!')
-    }
-
-
     
     return (
         <>
-            {!token ? (
+        {loading ? (
+            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center'>
+                <Label className='text-4xl font-bold mb-5'>Loading...</Label>
+                <Label>Please wait for grid to be set</Label>
+            </div>
+        ) : !token ? (
                 <div className="flex flex-col min-h-screen items-center justify-center">
                     <h1 className="text-4xl font-bold">Please log in to access this page</h1>
                     <Button className="mt-4" onClick={(e:any) => {window.location.href = '/user'}}>Log In</Button>
@@ -62,7 +67,10 @@ export default function GameDashboard() {
                 <div className="flex flex-col min-h-screen">
                     <header className="bg-color-background text-color-primary">
                         <div className='flex items-center justify-between py-4 px-6'>
-                            <h1 className="text-2xl font-bold">Game Lobbies</h1>
+                            <div className='flex flex-row justify-center items-center gap-6'>
+                                <Button variant='secondary' onClick={(e:any) => window.location.href = '/'}>Home</Button>
+                                <h1 className="text-2xl font-bold">Game Lobbies</h1>
+                            </div>
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -104,7 +112,6 @@ export default function GameDashboard() {
                                         </div>
                                     </Card>
                                 ))}
-                                <div className='w-[300px] min-w-[300px] max-w-[300px] h-[166px]'></div>
                             </div>
                         </div>
                     </main>

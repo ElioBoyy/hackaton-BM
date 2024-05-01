@@ -1,7 +1,14 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
 
 export default class Pixel extends BaseModel {
+  @beforeCreate()
+  static async createdAt(pixel: Pixel) {
+    if (!pixel.createdAt) {
+      pixel.createdAt = DateTime.now().toString()
+    }
+  }
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -20,6 +27,6 @@ export default class Pixel extends BaseModel {
   @column()
   declare color: string
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+  @column()
+  declare createdAt: String
 }

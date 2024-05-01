@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { withAuthFinder } from '@adonisjs/auth'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 
 const AuthFinder = withAuthFinder(() => hash.use('argon'), {
@@ -11,6 +11,13 @@ const AuthFinder = withAuthFinder(() => hash.use('argon'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+  @beforeCreate()
+  static async createdAt(user: User) {
+    if (!user.createdAt) {
+      user.createdAt = DateTime.now().toString()
+    }
+  }
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -23,8 +30,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare password: string
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+  @column()
+  declare createdAt: String
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
@@ -34,6 +41,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
     prefix: 'oat_',
     table: 'auth_access_tokens',
     type: 'auth_token',
-    tokenSecretLength: 40
+    tokenSecretLength: 40,
   })
 }
