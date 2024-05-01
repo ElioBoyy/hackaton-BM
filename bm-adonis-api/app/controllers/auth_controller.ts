@@ -3,7 +3,7 @@ import User from '#models/user'
 import { registerValidator, loginValidator } from '#validators/auth'
 
 export default class AuthController {
-  public static async login({ request, response }: HttpContext) {
+  static async login({ request, response }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 
     const user = await User.verifyCredentials(email, password)
@@ -14,7 +14,7 @@ export default class AuthController {
       ...user.serialize(),
     })
   }
-  public static async register({ request, response }: HttpContext) {
+  static async register({ request, response }: HttpContext) {
     const payload = await request.validateUsing(registerValidator)
 
     const user = await User.create(payload)
@@ -25,7 +25,7 @@ export default class AuthController {
       ...user.serialize(),
     })
   }
-  public static async logout({ auth, response }: HttpContext) {
+  static async logout({ auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const token = auth.user?.currentAccessToken.identifier
 

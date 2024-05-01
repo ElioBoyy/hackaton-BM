@@ -16,7 +16,7 @@ export async function axiosQuery(endpoint: string, method: string, payload: any,
 }
 
 const axiosType = async (props: { endpoint: string, method: string, payload: any, auth: any }): Promise<AxiosResponse<any>> => {
-  const baseUrl = 'http://localhost:3333';
+  const baseUrl = 'http://34.155.96.135:80';
   const url = baseUrl + props.endpoint;
 
   if (props.method === 'GET') {
