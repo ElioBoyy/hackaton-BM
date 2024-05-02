@@ -242,17 +242,17 @@ export default function GameUrl({ params }: {
     }
 
     const handleZoom = async () => {
-        // if (innerHeight > zoomLevel * gridSize * squareSize + innerHeight * 0.2 && innerWidth > zoomLevel * gridSize * squareSize + innerWidth * 0.4) {
-        //     const newZoomLevel = zoomLevel * 1.1
-        //     setZoomLevel(newZoomLevel)
-        // }
-
-        for(let i = 0; i < gridSize; i++) {
-            for(let j = 0; j < gridSize; j++) {
-                postPixel(gridObject?.id ?? -1, user.id, i, j, "#0FF000")
-                await new Promise(r => setTimeout(r, 10))
-            }
+        if (innerHeight > zoomLevel * gridSize * squareSize + innerHeight * 0.2 && innerWidth > zoomLevel * gridSize * squareSize + innerWidth * 0.4) {
+            const newZoomLevel = zoomLevel * 1.1
+            setZoomLevel(newZoomLevel)
         }
+
+        // for(let i = 0; i < gridSize; i++) {
+        //     for(let j = 0; j < gridSize; j++) {
+        //         postPixel(gridObject?.id ?? -1, user.id, i, j, "#0FF000")
+        //         await new Promise(r => setTimeout(r, 10))
+        //     }
+        // }
     }
 
     const handleDeZoom = () => {
